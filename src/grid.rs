@@ -16,7 +16,7 @@ pub struct Grid {
     can_castle: ((bool, bool), (bool, bool)),
 }
 
-// Piece getter and setter
+// Piece getter and setter and coordinate verifier
 impl Grid {
 
     // Creates a new chessboard with preset chess pieces.
@@ -52,6 +52,14 @@ impl Grid {
             Ok(())
         } else {
             Err(())
+        }
+    }
+
+    pub fn is_valid_coordinate(&self, coords: &Coordinate) -> bool {
+        if matches!(coords.1, 1..=8) && matches!(coords.0, 'a'..='h' | 'A'..='H') {
+            true
+        } else {
+            false
         }
     }
 }
