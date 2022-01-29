@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 #[allow(unused_variables)]
 use super::grid::{Coordinate, Grid};
-use super::piece::{PieceColour};
+use super::piece::PieceColour;
 use super::piece::PieceKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,10 +31,13 @@ impl Direction {
 
         let colour_modifier = match is_white {
             true => 1,
-            false => -1
+            false => -1,
         };
 
-        (coordinate_modifier.0 * colour_modifier, coordinate_modifier.1 * colour_modifier)
+        (
+            coordinate_modifier.0 * colour_modifier,
+            coordinate_modifier.1 * colour_modifier,
+        )
     }
 }
 
@@ -43,18 +46,18 @@ pub enum MoveType {
     Normal(Coordinate),
     Attack(Coordinate),
     Castling(Coordinate),
-    Promotion(Coordinate)
+    Promotion(Coordinate),
 }
 
 impl MoveType {
     fn get_coord(&self) -> &Coordinate {
         match self {
-          MoveType::Normal(c) => c,
-          MoveType::Attack(c) => c,
-          MoveType::Castling(c) => c,
-          MoveType::Promotion(c) => c,
+            MoveType::Normal(c) => c,
+            MoveType::Attack(c) => c,
+            MoveType::Castling(c) => c,
+            MoveType::Promotion(c) => c,
         }
-      }
+    }
 }
 
 // VALIDATION ONLY
@@ -71,7 +74,7 @@ impl PieceKind {
             PieceKind::Pawn => 1,
             PieceKind::Knight => 1,
             PieceKind::King => 1,
-            _ => 2
+            _ => 2,
         }
     }
 
@@ -95,7 +98,9 @@ impl PieceKind {
                     Direction::NW,
                     Direction::SE,
                     Direction::SW
-                ]; 2],
+                ];
+                2
+            ],
             PieceKind::Queen => vec![
                 vec![
                     Direction::N,
@@ -115,11 +120,10 @@ impl PieceKind {
     }
 }
 
-
 fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<MoveType>, ()> {
     let mut moves = Vec::new();
     let piece = grid.get_piece(&start_coord)?;
-    
+
     if piece.kind != PieceKind::Knight {
         let (move_directions, attack_directions) = piece.kind.get_directions();
 
@@ -128,9 +132,10 @@ fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<
             let max_moves = match piece.kind.move_number() {
                 0 => 0,
                 1 => 1,
-                _ => 8
+                _ => 8,
             };
-            let coordinate_modifier = direction.to_coordinate_modifier(piece.colour == PieceColour::White);
+            let coordinate_modifier =
+                direction.to_coordinate_modifier(piece.colour == PieceColour::White);
 
             loop {
                 if move_counter > max_moves {
@@ -138,8 +143,10 @@ fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<
                 }
 
                 let new_coord = Coordinate(
-                    ((start_coord.0 as isize) + coordinate_modifier.0*move_counter as isize) as u8 as char,
-                    ((start_coord.1 as isize) + coordinate_modifier.1*move_counter as isize) as usize
+                    ((start_coord.0 as isize) + coordinate_modifier.0 * move_counter as isize) as u8
+                        as char,
+                    ((start_coord.1 as isize) + coordinate_modifier.1 * move_counter as isize)
+                        as usize,
                 );
 
                 if grid.is_valid_coordinate(&new_coord) {
@@ -171,6 +178,41 @@ impl Grid {
                 return Ok(());
             }
         }
-    Err(())
+        Err(())
+    }
+}
+
+mod tests {
+    use super::super::grid::{Coordinate, Grid};
+
+    #[test]
+    fn basic_validation() {
+        let mut grid = Grid::new();
+
+        grid.move_piece(&Coordinate('C', 2), &Coordinate('C', 3))
+            .unwrap(); // Pawn
+        grid.move_piece(&Coordinate('D', 1), &Coordinate('C', 2))
+            .unwrap(); // Queen
+        grid.move_piece(&Coordinate('E', 1), &Coordinate('D', 1))
+            .unwrap(); // King
+
+        grid.move_piece(&Coordinate('D', 2), &Coordinate('D', 3))
+            .unwrap(); // Move the pawn out of the way
+        grid.move_piece(&Coordinate('A', 2), &Coordinate('A', 3))
+            .unwrap(); // Move the pawn out of the way
+
+        grid.move_piece(&Coordinate('C', 1), &Coordinate('G', 5))
+            .unwrap(); // Bishop
+        grid.move_piece(&Coordinate('A', 1), &Coordinate('A', 2))
+            .unwrap(); // Rook
+    }
+
+    #[test]
+    #[should_panic]
+    fn basic_validation_panic() {
+        let mut grid = Grid::new();
+
+        grid.move_piece(&Coordinate('A', 69), &Coordinate('B', 420))
+            .unwrap();
     }
 }

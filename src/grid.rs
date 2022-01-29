@@ -18,7 +18,6 @@ pub struct Grid {
 
 // Piece getter and setter and coordinate verifier
 impl Grid {
-
     // Creates a new chessboard with preset chess pieces.
     pub fn new() -> Grid {
         super::fen_parser::fen_parser("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR").unwrap()
@@ -66,14 +65,12 @@ impl Grid {
 
 // Move maker
 impl Grid {
-
     // validation code in validation.rs - this moves a piece and handles the taking of pieces.
     pub fn move_piece(
         &mut self,
         start_coord: &Coordinate,
         end_coord: &Coordinate,
     ) -> Result<(), ()> {
-
         self.validate_move(start_coord, end_coord)?; // Validation.rs
 
         let piece_to_move = self.get_piece(start_coord).unwrap().to_owned();
@@ -97,5 +94,26 @@ impl fmt::Debug for Grid {
             f.write_str(format!("{:?}\n", line).as_str())?;
         }
         Ok(())
+    }
+}
+
+mod tests {
+    use super::super::piece::PieceKind;
+    use super::{Coordinate, Grid};
+
+    #[test]
+    fn basic_grid_test() {
+        let grid = Grid::new();
+        assert_eq!(
+            grid.get_piece(&Coordinate('A', 1)).unwrap().kind,
+            PieceKind::Rook
+        );
+    }
+
+    #[test]
+    fn grid_coordinate_test() {
+        let grid = Grid::new();
+        assert!(grid.is_valid_coordinate(&Coordinate('A', 5)));
+        assert!(!grid.is_valid_coordinate(&Coordinate('A', 32)))
     }
 }
