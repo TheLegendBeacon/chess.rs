@@ -57,6 +57,6 @@ impl fmt::Display for Piece {
 // [TODO]: CHANGE THIS
 impl fmt::Debug for Piece {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(&format!("{}", self))
+        fmt::Display::fmt(self, f)
     }
 }
