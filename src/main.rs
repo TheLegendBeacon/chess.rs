@@ -18,3 +18,4 @@ use grid::{Coordinate, Grid};
 fn main() {
     let mut grid = Grid::new();
     println!("{:?}", grid);
+}
