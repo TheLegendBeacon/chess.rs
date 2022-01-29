@@ -37,11 +37,7 @@ impl Grid {
             _ => return Err(()),
         };
 
-        if 0 < coords.1
-            && coords.1 <= 8
-            && 0 < (letter as usize - 96)
-            && (letter as usize - 96) <= 8
-        {
+        if matches!(coords.1, 1..=8) && matches!(coords.0, 'a'..='h' | 'A'..='H') {
             Ok(&(self.grid[8 - (coords.1)][letter as usize - 97]))
         } else {
             Err(())
@@ -51,7 +47,7 @@ impl Grid {
     // Sets a piece to a given position. Again, using usual chess notation.
     fn set_piece(&mut self, coords: &Coordinate, piece: Piece) -> Result<(), ()> {
         let letter = coords.0.to_ascii_lowercase();
-        if matches!(coords.1, 1..=8) && matches!(coords.0, 'a'..='f' | 'A'..='F') {
+        if matches!(coords.1, 1..=8) && matches!(coords.0, 'a'..='h' | 'A'..='H') {
             self.grid[8 - (coords.1)][letter as usize - 97] = piece;
             Ok(())
         } else {
