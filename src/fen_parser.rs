@@ -4,7 +4,6 @@
 FEN-1: Expand the FEN parser and allow it to take up more than just the position inputs. LOW priority. Depends on Grid-2.
 */
 
-
 use super::grid::Grid;
 use super::piece::{Piece, PieceColour, PieceKind};
 
@@ -46,7 +45,7 @@ pub fn fen_parser(inputs: &str) -> Result<Grid, ()> {
         .map(|x| x.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
-    let mut grid: Vec<Vec<Piece>> = Vec::new();
+    let mut grid: Vec<[Piece; 8]> = Vec::new();
     for line in items {
         let mut linevec = Vec::new();
 
@@ -61,8 +60,13 @@ pub fn fen_parser(inputs: &str) -> Result<Grid, ()> {
                     return Err(());
                 }
             }
+        
         }
-        grid.push(linevec);
+        let arr = linevec.try_into();
+        match arr {
+            Ok(item) => grid.push(item),
+            Err(_) => return Err(())
+        }
     }
-    Ok(Grid::from_attrs(grid, ((true, true), (true, true))))
+    Ok(Grid::from_attrs(grid.try_into().unwrap(), ((true, true), (true, true))))
 }

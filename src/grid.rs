@@ -12,7 +12,7 @@ use std::fmt;
 pub struct Coordinate(pub char, pub usize);
 
 pub struct Grid {
-    grid: Vec<Vec<Piece>>,
+    grid: [[Piece; 8]; 8],
     can_castle: ((bool, bool), (bool, bool)),
 }
 
@@ -25,7 +25,7 @@ impl Grid {
     }
 
     // Creates a grid struct from given attributes.
-    pub fn from_attrs(grid: Vec<Vec<Piece>>, can_castle: ((bool, bool), (bool, bool))) -> Grid {
+    pub fn from_attrs(grid: [[Piece; 8]; 8], can_castle: ((bool, bool), (bool, bool))) -> Grid {
         Grid { grid, can_castle }
     }
 
