@@ -126,14 +126,16 @@ fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<
 
     if piece.kind != PieceKind::Knight {
         let (move_directions, attack_directions) = piece.kind.get_directions();
+    
+        let max_moves = match piece.kind.move_number() {
+            0 => 0,
+            1 => 1,
+            _ => 8,
+        };
 
         for direction in move_directions {
             let mut move_counter = 1;
-            let max_moves = match piece.kind.move_number() {
-                0 => 0,
-                1 => 1,
-                _ => 8,
-            };
+
             let coordinate_modifier =
                 direction.to_coordinate_modifier(piece.colour == PieceColour::White);
 
@@ -161,6 +163,35 @@ fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<
 
                 move_counter += 1;
                 continue;
+            }
+        }
+    
+        for direction in attack_directions {
+            let mut move_counter = 1;
+
+            let coordinate_modifier =
+                direction.to_coordinate_modifier(piece.colour == PieceColour::White);
+
+            loop {
+                if move_counter > max_moves {
+                    break;
+                } 
+
+                let new_coord = Coordinate(
+                    ((start_coord.0 as isize) + coordinate_modifier.0 * move_counter as isize) as u8
+                        as char,
+                    ((start_coord.1 as isize) + coordinate_modifier.1 * move_counter as isize)
+                        as usize,
+                );
+
+                if grid.is_valid_coordinate(&new_coord) {
+
+                    if grid.get_piece(&new_coord)?.kind != PieceKind::Blank && grid.get_piece(&new_coord)?.colour != piece.colour {
+                        moves.push(MoveType::Attack(new_coord));
+                        break;
+                    }
+                }
+                move_counter += 1;
             }
         }
     } else {
@@ -221,7 +252,7 @@ mod tests {
     use super::super::grid::{Coordinate, Grid};
 
     #[test]
-    fn basic_validation() {
+    fn basic_normal_move() {
         let mut grid = Grid::new();
 
         grid.move_piece(&Coordinate('C', 2), &Coordinate('C', 3))
@@ -251,5 +282,33 @@ mod tests {
 
         grid.move_piece(&Coordinate('A', 69), &Coordinate('B', 420))
             .unwrap();
+    }
+
+    #[test]
+    fn basic_attacking_move() {
+        let mut grid = Grid::new();
+
+        grid.move_piece(&Coordinate('E', 2), &Coordinate('E', 3)).unwrap();
+        grid.move_piece(&Coordinate('D', 1), &Coordinate('H', 5)).unwrap();
+        grid.move_piece(&Coordinate('H', 5), &Coordinate('F', 7)).unwrap();
+    }
+
+    #[test]
+    fn basic_black_test() {
+        let mut grid = Grid::new();
+
+        grid.move_piece(&Coordinate('E', 7), &Coordinate('E', 6)).unwrap();
+    }
+
+    #[test]
+    fn pawn_attack_test() {
+        let mut grid = Grid::new();
+        
+        grid.move_piece(&Coordinate('D', 7), &Coordinate('D', 6)).unwrap();
+        grid.move_piece(&Coordinate('D', 8), &Coordinate('D', 7)).unwrap();
+        grid.move_piece(&Coordinate('D', 7), &Coordinate('H', 3)).unwrap();
+
+        grid.move_piece(&Coordinate('G', 2), &Coordinate('H', 3)).unwrap();
+
     }
 }
