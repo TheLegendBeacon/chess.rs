@@ -4,13 +4,8 @@
 */
 
 mod fen_parser;
-
-#[allow(dead_code)]
 mod grid;
 mod piece;
-
-#[allow(dead_code)]
-#[allow(unused_variables)]
 mod validation;
 
 use grid::{Coordinate, Grid};

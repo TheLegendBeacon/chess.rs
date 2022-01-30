@@ -163,6 +163,39 @@ fn generate_possible_moves(start_coord: &Coordinate, grid: &Grid) -> Result<Vec<
                 continue;
             }
         }
+    } else {
+        let possible_modifications = [
+            (1, 2),
+            (1, -2),
+            (-1, 2),
+            (-1, -2),
+            (2, 1),
+            (2, -1),
+            (-2, 1),
+            (-2, -1)
+            
+        ];
+
+        let mut possible_coordinates: Vec<Coordinate> = Vec::new();
+        for item in possible_modifications {
+            let new_coord = Coordinate(
+                ((start_coord.0 as isize) + item.0 as isize) as u8
+                    as char,
+                ((start_coord.1 as isize) + item.1 as isize)
+                    as usize,
+            );
+
+            if grid.is_valid_coordinate(&new_coord) {
+                possible_coordinates.push(new_coord);
+            }
+        }
+        for item in possible_coordinates {
+            if grid.get_piece(&item)?.kind == PieceKind::Blank {
+                moves.push(MoveType::Normal(item));
+            } else {
+                moves.push(MoveType::Attack(item));
+            }
+        }
     }
     return Ok(moves);
 }
@@ -182,6 +215,8 @@ impl Grid {
     }
 }
 
+#[allow(dead_code)]
+#[allow(unused_imports)]
 mod tests {
     use super::super::grid::{Coordinate, Grid};
 
@@ -205,6 +240,8 @@ mod tests {
             .unwrap(); // Bishop
         grid.move_piece(&Coordinate('A', 1), &Coordinate('A', 2))
             .unwrap(); // Rook
+        grid.move_piece(&Coordinate('B', 1), &Coordinate('D', 2))
+            .unwrap(); // Knight
     }
 
     #[test]

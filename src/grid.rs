@@ -97,6 +97,8 @@ impl fmt::Debug for Grid {
     }
 }
 
+#[allow(dead_code)]
+#[allow(unused_imports)]
 mod tests {
     use super::super::piece::PieceKind;
     use super::{Coordinate, Grid};
